@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation_main"
+    app:startDestination="@id/fragmentHome">
+
+    <fragment
+        android:id="@+id/fragmentHome"
+        android:name="com.example.atamimessenger.fragments.FragmentHome"
+        android:label="FragmentHome"
+        tools:layout="@layout/fragment_home" />
+    <fragment
+        android:id="@+id/fragmentAdd"
+        android:name="com.example.atamimessenger.fragments.FragmentAdd"
+        android:label="FragmentAdd"
+        tools:layout="@layout/fragment_add" />
+    <fragment
+        android:id="@+id/fragmentProfile"
+        android:name="com.example.atamimessenger.fragments.FragmentProfile"
+        android:label="FragmentProfile"
+        tools:layout="@layout/fragment_profile" />
+    <fragment
+        android:id="@+id/fragmentMessage"
+        android:name="com.example.atamimessenger.fragments.FragmentMessage"
+        android:label="FragmentMessage"
+        tools:layout="@layout/fragment_message" />
+    <fragment
+        android:id="@+id/fragmentAuth"
+        android:name="com.example.atamimessenger.fragments.FragmentAuth"
+        android:label="FragmentAuth"
+        tools:layout="@layout/fragment_auth" />
+</navigation>

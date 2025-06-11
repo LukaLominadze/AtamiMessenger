@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "947021879375",
+    "project_id": "atami-f90f1",
+    "storage_bucket": "atami-f90f1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:947021879375:android:834d34eaa5f53921c2723a",
+        "android_client_info": {
+          "package_name": "com.example.atamimessenger"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCDVjPhigg2Y2caMxNe2Mb2hn-JEsx8pF0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

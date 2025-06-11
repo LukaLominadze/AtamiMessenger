@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.atamimessenger.R
 import com.example.atamimessenger.adapters.MessageRecyclerViewAdapter
 import com.example.atamimessenger.database.MessageCard
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class FragmentHome : Fragment() {
 
@@ -33,6 +34,9 @@ class FragmentHome : Fragment() {
         messageBlobs.add(MessageCard("Me"))
         messageAdapter = MessageRecyclerViewAdapter(messageBlobs) { message ->
             val action = FragmentHomeDirections.actionFragmentHomeToFragmentMessage(message.username)
+
+            val bottomNav = requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigation)
+            bottomNav.visibility = View.GONE
 
             findNavController().navigate(action)
         }

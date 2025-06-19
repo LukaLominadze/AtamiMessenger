@@ -6,6 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.atamimessenger.R
@@ -40,6 +42,19 @@ class FragmentMessage : Fragment() {
 
             findNavController().navigate(action)
         }
+
+        val callback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                val action = FragmentMessageDirections.actionFragmentMessageToFragmentHome()
+
+                val bottomNav = requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigation)
+                bottomNav.visibility = View.VISIBLE
+
+                findNavController().navigate(action)
+            }
+        }
+
+        requireActivity().onBackPressedDispatcher.addCallback(callback)
 
         return view
     }

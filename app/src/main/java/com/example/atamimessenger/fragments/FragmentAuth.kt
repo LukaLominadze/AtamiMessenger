@@ -1,6 +1,5 @@
 package com.example.atamimessenger.fragments
 
-import android.app.Application
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -23,6 +22,7 @@ class FragmentAuth : Fragment() {
     private lateinit var authPassTextInput: TextInputLayout
     private lateinit var authLoginButton: Button
     private lateinit var authRegisterButton: Button
+    private lateinit var authResetButton: Button
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -37,6 +37,7 @@ class FragmentAuth : Fragment() {
         authPassTextInput = view.findViewById(R.id.authPassTextInput)
         authLoginButton = view.findViewById(R.id.authLoginButton)
         authRegisterButton = view.findViewById(R.id.authRegisterButton)
+        authResetButton = view.findViewById(R.id.authResetButton)
 
         val callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -47,6 +48,11 @@ class FragmentAuth : Fragment() {
 
         authRegisterButton.setOnClickListener {
             val action = FragmentAuthDirections.actionFragmentAuthToFragmentRegister()
+            findNavController().navigate(action)
+        }
+
+        authResetButton.setOnClickListener {
+            val action = FragmentAuthDirections.actionFragmentAuthToFragmentRecovery()
             findNavController().navigate(action)
         }
 

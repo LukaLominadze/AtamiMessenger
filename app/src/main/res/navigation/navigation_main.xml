@@ -30,7 +30,13 @@
         android:id="@+id/fragmentProfile"
         android:name="com.example.atamimessenger.fragments.FragmentProfile"
         android:label="FragmentProfile"
-        tools:layout="@layout/fragment_profile" />
+        tools:layout="@layout/fragment_profile" >
+        <action
+            android:id="@+id/action_fragmentProfile_to_fragmentAuth"
+            app:destination="@id/fragmentAuth"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim" />
+    </fragment>
     <fragment
         android:id="@+id/fragmentMessage"
         android:name="com.example.atamimessenger.fragments.FragmentMessage"

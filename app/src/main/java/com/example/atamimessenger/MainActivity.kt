@@ -11,6 +11,7 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.transition.Visibility
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.FirebaseApp
+import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,11 +25,14 @@ class MainActivity : AppCompatActivity() {
         }
 
         FirebaseApp.initializeApp(this)
+        val user = FirebaseAuth.getInstance().currentUser
 
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigation)
         val navController = findNavController(R.id.nav_host_fragment)
         bottomNavigationView.setupWithNavController(navController)
 
-        bottomNavigationView.visibility = View.GONE
+        if (user == null) {
+            bottomNavigationView.visibility = View.GONE
+        }
     }
 }

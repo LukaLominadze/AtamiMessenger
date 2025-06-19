@@ -1,11 +1,13 @@
 package com.example.atamimessenger.fragments
 
+import android.app.Application
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.atamimessenger.R
@@ -36,9 +38,47 @@ class FragmentAuth : Fragment() {
         authLoginButton = view.findViewById(R.id.authLoginButton)
         authRegisterButton = view.findViewById(R.id.authRegisterButton)
 
+        val callback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                requireActivity().finishAffinity()
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(callback)
+
         authRegisterButton.setOnClickListener {
             val action = FragmentAuthDirections.actionFragmentAuthToFragmentRegister()
             findNavController().navigate(action)
+        }
+
+        val user = firebaseAuth.currentUser
+        if (user != null) {
+            val action = FragmentAuthDirections.actionFragmentAuthToFragmentHome()
+            findNavController().navigate(action)
+        }
+
+        authLoginButton.setOnClickListener {
+            val email = authEmailTextInput.editText?.text.toString()
+            val password = authPassTextInput.editText?.text.toString()
+            if (email.isEmpty() || password.isEmpty()) {
+                Toast.makeText(activity, "Email and password can't be empty!", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            else if (!email.contains("@") || !email.contains(".")) {
+                Toast.makeText(activity, "Invalid email!", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            firebaseAuth.signInWithEmailAndPassword(email, password)
+                .addOnSuccessListener {
+                    val action = FragmentAuthDirections.actionFragmentAuthToFragmentHome()
+
+                    val bottomNav = requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigation)
+                    bottomNav.visibility = View.VISIBLE
+
+                    findNavController().navigate(action)
+                }
+                .addOnFailureListener {
+                    Toast.makeText(activity, "Invalid email or password", Toast.LENGTH_SHORT).show()
+                }
         }
 
         return view

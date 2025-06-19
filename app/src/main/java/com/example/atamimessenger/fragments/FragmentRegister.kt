@@ -99,6 +99,7 @@ class FragmentRegister : Fragment() {
                         dbRef.child("usernames").child(userId.toString()).setValue(usernameInp)
                             .addOnSuccessListener {
                                 Toast.makeText(activity, "Added to private", Toast.LENGTH_SHORT).show()
+                                firebaseAuth.signOut()
                                 val action = FragmentRegisterDirections.actionFragmentRegisterToFragmentAuth()
                                 findNavController().navigate(action)
                             }

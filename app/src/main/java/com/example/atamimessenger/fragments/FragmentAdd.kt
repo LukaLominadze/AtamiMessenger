@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
+import androidx.navigation.NavOptions
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -38,7 +40,16 @@ class FragmentAdd : Fragment() {
 
         searchCards = mutableListOf()
         searchAdapter = SearchRecyclerViewAdapter(searchCards) { user ->
+            val action = FragmentAddDirections.actionFragmentAddToFragmentMessage(user.username)
 
+            val bottomNav = requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigation)
+            bottomNav.visibility = View.GONE
+
+            val navOptions = NavOptions.Builder()
+                .setPopUpTo(R.id.fragmentAdd, true)
+                .build()
+
+            findNavController().navigate(action, navOptions)
         }
         recyclerView.adapter = searchAdapter
 

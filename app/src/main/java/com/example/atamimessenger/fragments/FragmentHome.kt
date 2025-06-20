@@ -1,6 +1,5 @@
 package com.example.atamimessenger.fragments
 
-import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -13,7 +12,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.atamimessenger.R
-import com.example.atamimessenger.adapters.MessageRecyclerViewAdapter
+import com.example.atamimessenger.adapters.MessageBlockRecyclerViewAdapter
 import com.example.atamimessenger.database.MessageCard
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import java.time.LocalDateTime
@@ -23,7 +22,7 @@ class FragmentHome : Fragment() {
 
     private lateinit var messageBlobs: MutableList<MessageCard>
     private lateinit var recyclerView: RecyclerView
-    private lateinit var messageAdapter: MessageRecyclerViewAdapter
+    private lateinit var messageAdapter: MessageBlockRecyclerViewAdapter
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
@@ -38,7 +37,7 @@ class FragmentHome : Fragment() {
 
         messageBlobs = mutableListOf()
         messageBlobs.add(MessageCard("Me"))
-        messageAdapter = MessageRecyclerViewAdapter(messageBlobs) { message ->
+        messageAdapter = MessageBlockRecyclerViewAdapter(messageBlobs) { message ->
             val action = FragmentHomeDirections.actionFragmentHomeToFragmentMessage(message.username)
 
             val bottomNav = requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigation)

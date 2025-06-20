@@ -6,7 +6,6 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.atamimessenger.R
-import com.example.atamimessenger.database.Message
 import com.example.atamimessenger.database.MessageCard
 
 class MessageBlockRecyclerViewAdapter(

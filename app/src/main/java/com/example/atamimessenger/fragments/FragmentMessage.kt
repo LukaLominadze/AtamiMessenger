@@ -29,6 +29,8 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import java.time.LocalDateTime
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 class FragmentMessage : Fragment() {
@@ -137,8 +139,8 @@ class FragmentMessage : Fragment() {
 
             messageTextInput.editText?.text?.clear()
 
-            val date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))
-            val time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HHmmss"))
+            val date = ZonedDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("yyyyMMdd"))
+            val time = ZonedDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("HHmmss"))
 
             val messageData = mapOf(
                 "user" to username,
@@ -174,7 +176,7 @@ class FragmentMessage : Fragment() {
 
         recyclerView.adapter = messageAdapter
 
-        val date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))
+        val date = ZonedDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("yyyyMMdd"))
 
         val chatRef = firebaseDb.reference
             .child("chats")
@@ -185,7 +187,8 @@ class FragmentMessage : Fragment() {
             .addChildEventListener(object: ChildEventListener {
                 override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
                     val message = snapshot.getValue(FirebaseMessage::class.java)
-                    val msg = Message(message?.user.toString(), message?.message.toString())
+                    val time = snapshot.key.toString()
+                    val msg = Message(time, message?.user.toString(), message?.message.toString())
                     messageAdapter.add(msg)
                 }
 

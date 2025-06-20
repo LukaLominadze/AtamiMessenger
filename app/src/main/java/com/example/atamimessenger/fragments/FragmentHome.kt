@@ -15,11 +15,15 @@ import com.example.atamimessenger.R
 import com.example.atamimessenger.adapters.MessageBlockRecyclerViewAdapter
 import com.example.atamimessenger.database.MessageCard
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 class FragmentHome : Fragment() {
 
+    private lateinit var firebaseAuth: FirebaseAuth
+    private lateinit var firebaseDb: FirebaseDatabase
     private lateinit var messageBlobs: MutableList<MessageCard>
     private lateinit var recyclerView: RecyclerView
     private lateinit var messageAdapter: MessageBlockRecyclerViewAdapter
@@ -36,7 +40,6 @@ class FragmentHome : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(context)
 
         messageBlobs = mutableListOf()
-        messageBlobs.add(MessageCard("Me"))
         messageAdapter = MessageBlockRecyclerViewAdapter(messageBlobs) { message ->
             val action = FragmentHomeDirections.actionFragmentHomeToFragmentMessage(message.username)
 
@@ -48,11 +51,36 @@ class FragmentHome : Fragment() {
 
         recyclerView.adapter = messageAdapter
 
-        //TODO: messaging system
-        Toast.makeText(
-            activity,
-            LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")),
-            Toast.LENGTH_SHORT).show()
+        firebaseAuth = FirebaseAuth.getInstance()
+        firebaseDb = FirebaseDatabase.
+            getInstance("https://atami-f90f1-default-rtdb.europe-west1.firebasedatabase.app")
+
+        var username = ""
+        firebaseDb.reference
+            .child("usernames")
+            .child(firebaseAuth.currentUser?.uid.toString())
+            .get()
+            .addOnSuccessListener { snapshot ->
+                username = snapshot.getValue(String::class.java).toString()
+                firebaseDb.reference
+                    .child("chats")
+                    .get()
+                    .addOnSuccessListener { snapshot ->
+                        val keys = snapshot.children.mapNotNull { it.key }
+                        val filtered = keys.filter { key -> key.contains(username) }
+                        val otherUsernames = filtered.map { name ->
+                            when {
+                                name.startsWith("$username-") -> MessageCard(name.replaceFirst("$username-", ""))
+                                name.endsWith("-$username") -> MessageCard(name.replaceFirst("-$username", ""))
+                                else -> MessageCard(name) // fallback if format is unexpected
+                            }
+                        }
+                        messageAdapter.addAll(otherUsernames)
+                    }
+                    .addOnFailureListener { e ->
+                        Toast.makeText(activity, e.message.toString(), Toast.LENGTH_SHORT).show()
+                    }
+            }
 
         return view
     }

@@ -1,10 +1,13 @@
 package com.example.atamimessenger.fragments
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -13,6 +16,8 @@ import com.example.atamimessenger.R
 import com.example.atamimessenger.adapters.MessageRecyclerViewAdapter
 import com.example.atamimessenger.database.MessageCard
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 class FragmentHome : Fragment() {
 
@@ -20,6 +25,7 @@ class FragmentHome : Fragment() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var messageAdapter: MessageRecyclerViewAdapter
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -42,6 +48,12 @@ class FragmentHome : Fragment() {
         }
 
         recyclerView.adapter = messageAdapter
+
+        //TODO: messaging system
+        Toast.makeText(
+            activity,
+            LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")),
+            Toast.LENGTH_SHORT).show()
 
         return view
     }

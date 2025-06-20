@@ -23,7 +23,7 @@ class MessageRecyclerViewAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MessageViewHolder {
         val itemView = LayoutInflater.from(parent.context)
-            .inflate(R.layout.card_message, parent, false)
+            .inflate(R.layout.card_message_block, parent, false)
         return MessageViewHolder(itemView)
     }
 

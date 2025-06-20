@@ -1,8 +1,12 @@
 package com.example.atamimessenger.fragments
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
@@ -28,6 +32,7 @@ import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import java.time.Duration
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
@@ -42,11 +47,16 @@ class FragmentMessage : Fragment() {
     private lateinit var users: MutableList<String>
     private var otherUser: String? = null
     private var canSendMsg = false
+    private var loadMsgs = true
     private var username = ""
+    private var dateOffset = 1
+    private lateinit var dates: List<String>
 
     private lateinit var messages: MutableList<Message>
     private lateinit var recyclerView: RecyclerView
     private lateinit var messageAdapter: MessageRecyclerViewAdapter
+
+    private lateinit var messageListener: ChildEventListener;
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -91,6 +101,48 @@ class FragmentMessage : Fragment() {
         firebaseDb = FirebaseDatabase
             .getInstance("https://atami-f90f1-default-rtdb.europe-west1.firebasedatabase.app")
 
+        messageListener = object: ChildEventListener {
+            override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+                val message = snapshot.getValue(FirebaseMessage::class.java)
+                val time = snapshot.key.toString().split("-")[0]
+                val msg = Message(time, message?.user.toString(), message?.message.toString())
+                messageAdapter.add(msg)
+
+                val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+                val lastVisiblePosition = layoutManager.findLastCompletelyVisibleItemPosition()
+                val lastItemPosition = messageAdapter.itemCount - 1
+
+                if (lastVisiblePosition == lastItemPosition - 1 ||
+                    msg.user == username) {
+                    // If last visible item was previously last message,
+                    // now new message added, scroll down to new last message
+                    recyclerView.scrollToPosition(lastItemPosition)
+                }
+            }
+
+            override fun onChildChanged(
+                snapshot: DataSnapshot,
+                previousChildName: String?
+            ) {
+
+            }
+
+            override fun onChildRemoved(snapshot: DataSnapshot) {
+
+            }
+
+            override fun onChildMoved(
+                snapshot: DataSnapshot,
+                previousChildName: String?
+            ) {
+
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+
+            }
+        }
+
         val dbRef = firebaseDb.reference
         dbRef.child("usernames").child(firebaseAuth.currentUser?.uid.toString()).get()
             .addOnSuccessListener { snapshot ->
@@ -114,6 +166,7 @@ class FragmentMessage : Fragment() {
                         }
                         canSendMsg = true
                         setupAdapterView(view)
+                        setDates()
                     }
                     .addOnFailureListener { e ->
                         Toast.makeText(activity, "Error on trusted users ${e.message.toString()}", Toast.LENGTH_SHORT).show()
@@ -166,6 +219,7 @@ class FragmentMessage : Fragment() {
         return view
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setupAdapterView(view: View) {
         recyclerView = view.findViewById(R.id.messageRecyclerView)
@@ -184,36 +238,98 @@ class FragmentMessage : Fragment() {
             .child("messages")
         chatRef
             .child(date)
-            .addChildEventListener(object: ChildEventListener {
-                override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
-                    val message = snapshot.getValue(FirebaseMessage::class.java)
-                    val time = snapshot.key.toString().split("-")[0]
-                    val msg = Message(time, message?.user.toString(), message?.message.toString())
-                    messageAdapter.add(msg)
+            .addChildEventListener(messageListener)
+
+        recyclerView.setOnTouchListener { v, event ->
+            when (event.action) {
+                MotionEvent.ACTION_MOVE -> {
+                    if (!loadMsgs) {
+                        return@setOnTouchListener false
+                    }
+
+                    val isAtTop = !recyclerView.canScrollVertically(-1)
+
+                    if (isAtTop && loadMsgs) {
+
+                        loadMsgs = false
+                        dateOffset += 1
+                        if (dateOffset > dates.size) {
+                            return@setOnTouchListener false
+                        }
+                        val date = dates[dates.size - dateOffset]
+                        chatRef
+                            .child(date)
+                            .get()
+                            .addOnSuccessListener { snapshot ->
+                                if (!snapshot.exists()) {
+                                    loadMsgs = true
+                                    return@addOnSuccessListener
+                                }
+                                val msgs: List<Message> = snapshot.children.mapNotNull { childSnapshot ->
+                                    val timestamp = childSnapshot.key ?: return@mapNotNull null
+                                    val fbMsg = childSnapshot.getValue(FirebaseMessage::class.java) ?: return@mapNotNull null
+                                    Message(timestamp, fbMsg.user ?: "", fbMsg.message ?: "")
+                                }
+                                for (msg: Message in msgs.asReversed()) {
+                                    messageAdapter.addFirst(msg)
+                                }
+                                loadMsgs = true
+                            }
+                    }
                 }
+            }
+            false
+        }
 
-                override fun onChildChanged(
-                    snapshot: DataSnapshot,
-                    previousChildName: String?
-                ) {
+        // When a new day starts, reconfigure events
 
-                }
+        val now = LocalDateTime.now()
+        val midnight = now.toLocalDate().plusDays(1).atStartOfDay()
+        val millisUntilMidnight = Duration.between(now, midnight).toMillis()
 
-                override fun onChildRemoved(snapshot: DataSnapshot) {
+        Handler(Looper.getMainLooper()).postDelayed({
+            onNewDayStarted()
+        }, millisUntilMidnight)
+    }
 
-                }
+    private fun setDates() {
+        val chatRef = firebaseDb.reference
+            .child("chats")
+            .child("${users.get(0)}-${users.get(1)}")
+            .child("messages")
+            .get()
+            .addOnSuccessListener { snapshot ->
+                val keys = snapshot.children.mapNotNull { it.key }
+                dates = keys
+            }
+    }
 
-                override fun onChildMoved(
-                    snapshot: DataSnapshot,
-                    previousChildName: String?
-                ) {
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun onNewDayStarted() {
+        val date = ZonedDateTime.now(ZoneOffset.UTC)
+            .minusDays(1)
+            .format(DateTimeFormatter.ofPattern("yyyyMMdd"))
 
-                }
+        val chatRef = firebaseDb.reference
+            .child("chats")
+            .child("${users[0]}-${users[1]}")
+            .child("messages")
+        chatRef
+            .child(date)
+            .removeEventListener(messageListener)
 
-                override fun onCancelled(error: DatabaseError) {
+        val currentdate = ZonedDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("yyyyMMdd"))
+        chatRef
+            .child(currentdate)
+            .addChildEventListener(messageListener)
 
-                }
-            })
+        val now = LocalDateTime.now()
+        val midnight = now.toLocalDate().plusDays(1).atStartOfDay()
+        val millisUntilMidnight = Duration.between(now, midnight).toMillis()
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            onNewDayStarted()
+        }, millisUntilMidnight)
     }
 
     override fun onDestroy() {

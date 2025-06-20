@@ -38,41 +38,18 @@ class MessageRecyclerViewAdapter(
 
         holder.messageTextView.text = currentItem.message
 
-        val constraintLayout = holder.itemView.findViewById<ConstraintLayout>(R.id.messageConstraint)
-        val constraintSet = ConstraintSet()
-        constraintSet.clone(constraintLayout)
+        val cardView = holder.messageCardView
+        val layoutParams = cardView.layoutParams as ConstraintLayout.LayoutParams
 
-        val cardViewId = R.id.messageCardView
-
-        constraintSet.clear(cardViewId)
-
-        constraintSet.connect(
-            cardViewId, ConstraintSet.TOP,
-            ConstraintSet.PARENT_ID, ConstraintSet.TOP,
-            0
-        )
-
-        constraintSet.connect(
-            cardViewId, ConstraintSet.BOTTOM,
-            ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM,
-            0
-        )
-
-        var constraintDir = ConstraintSet.END
-        if (currentItem.user != username) {
-            constraintDir = ConstraintSet.START
+        if (currentItem.user == username) {
+            layoutParams.startToStart = ConstraintLayout.LayoutParams.UNSET
+            layoutParams.endToEnd = ConstraintLayout.LayoutParams.PARENT_ID
+        } else {
+            layoutParams.endToEnd = ConstraintLayout.LayoutParams.UNSET
+            layoutParams.startToStart = ConstraintLayout.LayoutParams.PARENT_ID
         }
 
-        constraintSet.connect(
-            cardViewId, constraintDir,
-            ConstraintSet.PARENT_ID, constraintDir,
-            8
-        )
-
-        constraintSet.constrainWidth(cardViewId, ConstraintSet.WRAP_CONTENT)
-        constraintSet.constrainHeight(cardViewId, ConstraintSet.WRAP_CONTENT)
-
-        constraintSet.applyTo(constraintLayout)
+        cardView.layoutParams = layoutParams
     }
 
     public fun add(message: Message) {
@@ -81,9 +58,8 @@ class MessageRecyclerViewAdapter(
         notifyDataSetChanged()
     }
 
-    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     public fun addFirst(message: Message) {
-        messageList.addFirst(message)
+        messageList.add(0, message)
         notifyItemInserted(0)
     }
 

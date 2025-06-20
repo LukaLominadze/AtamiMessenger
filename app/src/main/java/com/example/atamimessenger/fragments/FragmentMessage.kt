@@ -152,7 +152,7 @@ class FragmentMessage : Fragment() {
                 .child("${users[0]}-${users[1]}")
                 .child("messages")
                 .child(date)
-                .child(time)
+                .child("${time}-${username}")
 
             dbRef.updateChildren(messageData)
                 .addOnSuccessListener {
@@ -187,7 +187,7 @@ class FragmentMessage : Fragment() {
             .addChildEventListener(object: ChildEventListener {
                 override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
                     val message = snapshot.getValue(FirebaseMessage::class.java)
-                    val time = snapshot.key.toString()
+                    val time = snapshot.key.toString().split("-")[0]
                     val msg = Message(time, message?.user.toString(), message?.message.toString())
                     messageAdapter.add(msg)
                 }

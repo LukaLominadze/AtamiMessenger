@@ -77,7 +77,8 @@ class MessageRecyclerViewAdapter(
 
     public fun add(message: Message) {
         messageList.add(message)
-        notifyItemInserted(messageList.size - 1)
+        messageList.sortBy { msg -> msg.time }
+        notifyDataSetChanged()
     }
 
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)

@@ -87,22 +87,18 @@ class FragmentHome : Fragment() {
                             snapshot: DataSnapshot,
                             previousChildName: String?
                         ) {
-
                         }
 
                         override fun onChildRemoved(snapshot: DataSnapshot) {
-
                         }
 
                         override fun onChildMoved(
                             snapshot: DataSnapshot,
                             previousChildName: String?
                         ) {
-
                         }
 
                         override fun onCancelled(error: DatabaseError) {
-
                         }
 
                     })

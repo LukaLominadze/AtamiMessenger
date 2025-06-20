@@ -65,22 +65,47 @@ class FragmentHome : Fragment() {
                 username = snapshot.getValue(String::class.java).toString()
                 firebaseDb.reference
                     .child("chats")
-                    .get()
-                    .addOnSuccessListener { snapshot ->
-                        val keys = snapshot.children.mapNotNull { it.key }
-                        val filtered = keys.filter { key -> key.contains(username) }
-                        val otherUsernames = filtered.map { name ->
-                            when {
-                                name.startsWith("$username-") -> MessageCard(name.replaceFirst("$username-", ""))
-                                name.endsWith("-$username") -> MessageCard(name.replaceFirst("-$username", ""))
-                                else -> MessageCard(name) // fallback if format is unexpected
+                    .addChildEventListener(object: ChildEventListener {
+                        override fun onChildAdded(
+                            snapshot: DataSnapshot,
+                            previousChildName: String?
+                        ) {
+                            val key = snapshot.key.toString()
+                            if (key.contains(username)) {
+                                val filtered = {
+                                    when {
+                                        key.startsWith("$username-") -> MessageCard(key.replaceFirst("$username-", ""))
+                                        key.endsWith("-$username") -> MessageCard(key.replaceFirst("-$username", ""))
+                                        else -> MessageCard(key)
+                                    }
+                                }()
+                                messageAdapter.add(filtered)
                             }
                         }
-                        messageAdapter.addAll(otherUsernames)
-                    }
-                    .addOnFailureListener { e ->
-                        Toast.makeText(activity, e.message.toString(), Toast.LENGTH_SHORT).show()
-                    }
+
+                        override fun onChildChanged(
+                            snapshot: DataSnapshot,
+                            previousChildName: String?
+                        ) {
+
+                        }
+
+                        override fun onChildRemoved(snapshot: DataSnapshot) {
+
+                        }
+
+                        override fun onChildMoved(
+                            snapshot: DataSnapshot,
+                            previousChildName: String?
+                        ) {
+
+                        }
+
+                        override fun onCancelled(error: DatabaseError) {
+
+                        }
+
+                    })
             }
 
         return view

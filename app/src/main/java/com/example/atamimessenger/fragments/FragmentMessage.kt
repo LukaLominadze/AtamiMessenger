@@ -292,6 +292,7 @@ class FragmentMessage : Fragment() {
         }, millisUntilMidnight)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun setDates() {
         val chatRef = firebaseDb.reference
             .child("chats")
@@ -299,7 +300,12 @@ class FragmentMessage : Fragment() {
             .child("messages")
             .get()
             .addOnSuccessListener { snapshot ->
-                val keys = snapshot.children.mapNotNull { it.key }
+                val keys = (snapshot.children.mapNotNull { it.key }).toMutableList()
+                val currentDate = ZonedDateTime
+                    .now(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("yyyyMMdd"))
+                if (keys.last() != currentDate) {
+                    keys.add(currentDate)
+                }
                 dates = keys
             }
     }

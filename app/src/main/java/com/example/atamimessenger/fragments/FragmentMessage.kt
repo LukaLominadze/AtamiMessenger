@@ -303,7 +303,7 @@ class FragmentMessage : Fragment() {
                 val keys = snapshot.children.mapNotNull { it.key }
                 val currentDate = ZonedDateTime
                     .now(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("yyyyMMdd"))
-                if (keys.last() != currentDate) {
+                if (keys.isNotEmpty() && keys.last() != currentDate) {
                     chatRef
                         .child(keys.last())
                         .get()
@@ -315,6 +315,8 @@ class FragmentMessage : Fragment() {
                             for (msg: Message in msgs.asReversed()) {
                                 messageAdapter.addFirst(msg)
                             }
+                            val lastItemPosition = messageAdapter.itemCount - 1
+                            recyclerView.scrollToPosition(lastItemPosition)
                         }
                 }
                 dates = keys

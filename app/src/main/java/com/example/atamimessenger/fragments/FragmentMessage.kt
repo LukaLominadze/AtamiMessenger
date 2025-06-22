@@ -167,6 +167,7 @@ class FragmentMessage : Fragment() {
                         canSendMsg = true
                         setupAdapterView(view)
                         setDates()
+
                     }
                     .addOnFailureListener { e ->
                         Toast.makeText(activity, "Error on trusted users ${e.message.toString()}", Toast.LENGTH_SHORT).show()
@@ -175,8 +176,6 @@ class FragmentMessage : Fragment() {
             .addOnFailureListener { e ->
                 Toast.makeText(activity, "Couldn't find username ${e.message.toString()}", Toast.LENGTH_SHORT).show()
             }
-
-
 
         messageTextInput = view.findViewById(R.id.messageTextInput)
         messageSendButton = view.findViewById(R.id.messageSendButton)
@@ -298,13 +297,25 @@ class FragmentMessage : Fragment() {
             .child("chats")
             .child("${users.get(0)}-${users.get(1)}")
             .child("messages")
+        chatRef
             .get()
             .addOnSuccessListener { snapshot ->
-                val keys = (snapshot.children.mapNotNull { it.key }).toMutableList()
+                val keys = snapshot.children.mapNotNull { it.key }
                 val currentDate = ZonedDateTime
                     .now(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("yyyyMMdd"))
                 if (keys.last() != currentDate) {
-                    keys.add(currentDate)
+                    chatRef
+                        .child(keys.last())
+                        .get()
+                        .addOnSuccessListener { snapshot ->
+                            val msgs = snapshot.children.mapNotNull { childSnapshot ->
+                                val timestamp = childSnapshot.key ?: return@mapNotNull null
+                                val fbMsg = childSnapshot.getValue(FirebaseMessage::class.java) ?: return@mapNotNull null
+                                Message(timestamp, fbMsg.user ?: "", fbMsg.message ?: "")}
+                            for (msg: Message in msgs.asReversed()) {
+                                messageAdapter.addFirst(msg)
+                            }
+                        }
                 }
                 dates = keys
             }

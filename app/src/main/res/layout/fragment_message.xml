@@ -34,7 +34,8 @@
         app:boxCornerRadiusBottomStart="20dp"
         app:boxCornerRadiusBottomEnd="20dp"
         app:boxStrokeColor="#AFDDFF"
-        app:boxBackgroundColor="#AFDDFF">
+        app:boxBackgroundColor="#AFDDFF"
+        android:textColorHint="@color/black">
 
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"

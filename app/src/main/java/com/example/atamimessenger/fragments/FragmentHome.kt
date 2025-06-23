@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.atamimessenger.R
 import com.example.atamimessenger.adapters.MessageBlockRecyclerViewAdapter
+import com.example.atamimessenger.app.App
 import com.example.atamimessenger.database.MessageCard
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth

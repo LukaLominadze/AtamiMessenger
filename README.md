@@ -9,6 +9,10 @@ A simple messenger app
 ## Platform
 The app is primarly supported on Android.
 
+# Dependencies
+- Firebase - For storing and hosting the database
+- Room - For caching memory
+
 ## Getting Started
 to clone the repository, run a terminal in your desired directory and execute:
 ```git clone --recursive https://github.com/LukaLominadze/AtamiMessenger```

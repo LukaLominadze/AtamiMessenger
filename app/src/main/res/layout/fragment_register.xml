@@ -5,7 +5,7 @@
     android:id="@+id/fragmentRegister"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0F044C">
+    android:background="#090040">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout"
@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
-        android:background="#1D267D"
+        android:background="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -24,7 +24,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="20dp"
-            android:backgroundTint="#01579B"
+            android:backgroundTint="#0F044C"
             android:text="Register"
             android:textColor="@color/white"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -51,7 +51,8 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
                 android:hint="Username"
-                android:textColor="@color/black" />
+                android:textColor="@color/black"
+                />
 
 
         </com.google.android.material.textfield.TextInputLayout>

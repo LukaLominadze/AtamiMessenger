@@ -3,9 +3,11 @@ package com.example.atamimessenger.adapters
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.atamimessenger.R
+import com.example.atamimessenger.app.App
 import com.example.atamimessenger.database.SearchCard
 
 class SearchRecyclerViewAdapter(
@@ -16,6 +18,7 @@ class SearchRecyclerViewAdapter(
 
     class SearchViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val titleTextView: TextView = itemView.findViewById(R.id.searchUsernameTextView)
+        val searchUserIcon: ImageView = itemView.findViewById(R.id.searchUserIcon)
     }
 
 
@@ -30,6 +33,7 @@ class SearchRecyclerViewAdapter(
         val currentItem = messageList[position]
 
         holder.titleTextView.text = currentItem.username
+        holder.searchUserIcon.setBackgroundColor(App.instance.colorFromUsername(currentItem.username))
 
         holder.itemView.setOnClickListener {
             onItemClick(currentItem)

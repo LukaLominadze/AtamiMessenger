@@ -4,6 +4,7 @@ import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.cardview.widget.CardView
@@ -11,6 +12,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.recyclerview.widget.RecyclerView
 import com.example.atamimessenger.R
+import com.example.atamimessenger.app.App
 import com.example.atamimessenger.database.Message
 
 class MessageRecyclerViewAdapter(
@@ -23,6 +25,7 @@ class MessageRecyclerViewAdapter(
 
         val messageCardView: CardView = itemView.findViewById(R.id.messageCardView)
         val messageTextView: TextView = itemView.findViewById(R.id.messageMessage)
+        val messageUserIcon: ImageView = itemView.findViewById(R.id.messageUserIcon)
     }
 
 
@@ -37,6 +40,7 @@ class MessageRecyclerViewAdapter(
         val currentItem = messageList[position]
 
         holder.messageTextView.text = currentItem.message
+        holder.messageUserIcon.setBackgroundColor(App.instance.colorFromUsername(currentItem.user))
 
         val cardView = holder.messageCardView
         val layoutParams = cardView.layoutParams as ConstraintLayout.LayoutParams

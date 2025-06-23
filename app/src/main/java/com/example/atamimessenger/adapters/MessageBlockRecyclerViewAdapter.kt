@@ -36,6 +36,7 @@ class MessageBlockRecyclerViewAdapter(
 
         holder.titleTextView.text = currentItem.username
         holder.homeUserIcon.setBackgroundColor(App.instance.colorFromUsername(currentItem.username))
+        holder.lastMessageTextView.text = currentItem.lastMessage
 
         holder.itemView.setOnClickListener {
             onItemClick(currentItem)

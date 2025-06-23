@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.atamimessenger.R
 import com.example.atamimessenger.adapters.MessageBlockRecyclerViewAdapter
 import com.example.atamimessenger.app.App
+import com.example.atamimessenger.database.FirebaseMessage
 import com.example.atamimessenger.database.MessageCard
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
@@ -75,12 +76,40 @@ class FragmentHome : Fragment() {
                             if (key.contains(username)) {
                                 val filtered = {
                                     when {
-                                        key.startsWith("$username-") -> MessageCard(key.replaceFirst("$username-", ""))
-                                        key.endsWith("-$username") -> MessageCard(key.replaceFirst("-$username", ""))
-                                        else -> MessageCard(key)
+                                        key.startsWith("$username-") -> key.replaceFirst("$username-", "")
+                                        key.endsWith("-$username") -> key.replaceFirst("-$username", "")
+                                        else -> key
                                     }
                                 }()
-                                messageAdapter.add(filtered)
+                                Toast.makeText(activity, key.toString(), Toast.LENGTH_SHORT).show()
+                                var lastMsg = ""
+                                firebaseDb.reference
+                                    .child("chats")
+                                    .child(key)
+                                    .child("messages")
+                                    .get()
+                                    .addOnSuccessListener { snapshot ->
+                                        val dates = snapshot.children.mapNotNull { it.key }
+                                        Toast.makeText(activity, dates.last().toString(), Toast.LENGTH_SHORT).show()
+                                        firebaseDb.reference
+                                            .child("chats")
+                                            .child(key)
+                                            .child("messages")
+                                            .child(dates.last().toString())
+                                            .get()
+                                            .addOnSuccessListener { snapshot ->
+                                                val keys = snapshot.children.mapNotNull { it.key }
+                                                val msg = snapshot
+                                                    .child(keys?.last().toString())
+                                                    .getValue(FirebaseMessage::class.java)
+                                                lastMsg = msg?.message.toString()
+                                                val trunc = if (lastMsg.length > 30) lastMsg.take(30) + "..." else lastMsg
+                                                messageAdapter.add(MessageCard(filtered.toString(), trunc))
+                                            }
+                                    }
+                                    .addOnFailureListener { e ->
+                                        Toast.makeText(activity, "${e.message.toString()}", Toast.LENGTH_SHORT).show()
+                                    }
                             }
                         }
                         override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {}

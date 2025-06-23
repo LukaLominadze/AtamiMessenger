@@ -4,6 +4,7 @@ import android.app.Application
 import android.graphics.Color
 import androidx.room.Room
 import com.example.atamimessenger.database.MessageDatabase
+import java.security.MessageDigest
 
 class App: Application() {
     companion object {
@@ -24,11 +25,19 @@ class App: Application() {
     }
 
     fun colorFromUsername(username: String): Int {
-        val hash = username.hashCode()
-        val hue = (hash % 360 + 360) % 360 // Ensure hue is positive and in 0-359
-        val saturation = 0.5f
-        val lightness = 0.8f
+        val digest = MessageDigest.getInstance("SHA-256").digest(username.toByteArray())
 
-        return Color.HSVToColor(floatArrayOf(hue.toFloat(), saturation, lightness))
+        // Use the first 3 bytes to get RGB values
+        val r = digest[0].toInt() and 0xFF
+        val g = digest[1].toInt() and 0xFF
+        val b = digest[2].toInt() and 0xFF
+
+        val s = 0.18f
+
+        val newR = (r + ((255 - r) * s)).toInt()
+        val newG = (g + ((255 - g) * s)).toInt()
+        val newB = (b + ((255 - b) * s)).toInt()
+
+        return Color.rgb(newR, newG, newB)
     }
 }

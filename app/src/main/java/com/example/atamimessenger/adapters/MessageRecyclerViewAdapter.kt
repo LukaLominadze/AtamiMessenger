@@ -57,7 +57,7 @@ class MessageRecyclerViewAdapter(
             return
         }
         messageList.add(message)
-        messageList.sortBy { msg -> msg.time }
+        messageList.sortBy { msg -> msg.date + msg.time }
         notifyDataSetChanged()
     }
 

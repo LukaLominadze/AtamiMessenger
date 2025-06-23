@@ -303,6 +303,24 @@ class FragmentMessage : Fragment() {
                             return@setOnTouchListener false
                         }
                         val date = dates[dates.size - dateOffset]
+                        var isCached = false
+                        lifecycleScope.launch {
+                            val msgs = App.instance.db.getMessageDao().getMessagesOfChatWithDate(
+                                date, username, otherUser.toString()
+                            )
+                            if (msgs.isEmpty()) {
+                                return@launch
+                            }
+                            for (msg in msgs) {
+                                messageAdapter.add(Message(
+                                    date, msg.time, msg.sender, msg.message
+                                ))
+                            }
+                            isCached = true
+                        }
+                        if (isCached) {
+                            return@setOnTouchListener false
+                        }
                         chatRef
                             .child(date)
                             .get()

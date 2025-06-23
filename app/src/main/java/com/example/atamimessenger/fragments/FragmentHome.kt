@@ -81,7 +81,6 @@ class FragmentHome : Fragment() {
                                         else -> key
                                     }
                                 }()
-                                Toast.makeText(activity, key.toString(), Toast.LENGTH_SHORT).show()
                                 var lastMsg = ""
                                 firebaseDb.reference
                                     .child("chats")
@@ -90,7 +89,9 @@ class FragmentHome : Fragment() {
                                     .get()
                                     .addOnSuccessListener { snapshot ->
                                         val dates = snapshot.children.mapNotNull { it.key }
-                                        Toast.makeText(activity, dates.last().toString(), Toast.LENGTH_SHORT).show()
+                                        if (dates.isEmpty()) {
+                                            return@addOnSuccessListener
+                                        }
                                         firebaseDb.reference
                                             .child("chats")
                                             .child(key)

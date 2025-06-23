@@ -53,18 +53,25 @@ class MessageRecyclerViewAdapter(
     }
 
     public fun add(message: Message) {
+        if (messageList.contains(message)) {
+            return
+        }
         messageList.add(message)
         messageList.sortBy { msg -> msg.time }
         notifyDataSetChanged()
     }
 
     public fun addFirst(message: Message) {
+        if (messageList.contains(message)) {
+            return
+        }
         messageList.add(0, message)
         notifyItemInserted(0)
     }
 
     public fun addAll(msgs: List<Message>) {
         messageList.addAll(msgs)
+        messageList.sortBy { msg -> msg.date + msg.time }
         notifyDataSetChanged()
     }
 

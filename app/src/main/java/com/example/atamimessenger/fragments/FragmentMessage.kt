@@ -15,15 +15,18 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.atamimessenger.R
 import com.example.atamimessenger.adapters.MessageBlockRecyclerViewAdapter
 import com.example.atamimessenger.adapters.MessageRecyclerViewAdapter
+import com.example.atamimessenger.app.App
 import com.example.atamimessenger.database.FirebaseMessage
 import com.example.atamimessenger.database.Message
 import com.example.atamimessenger.database.MessageCard
+import com.example.atamimessenger.database.MessageRoom
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.textfield.TextInputLayout
 import com.google.android.play.integrity.internal.ac
@@ -32,6 +35,7 @@ import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import kotlinx.coroutines.launch
 import java.time.Duration
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -104,13 +108,26 @@ class FragmentMessage : Fragment() {
         messageListener = object: ChildEventListener {
             override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
                 val message = snapshot.getValue(FirebaseMessage::class.java)
+                val currentdate = snapshot.ref.parent?.key.toString()
                 val time = snapshot.key.toString().split("-")[0]
-                val msg = Message(time, message?.user.toString(), message?.message.toString())
+                val msg = Message(currentdate, time, message?.user.toString(), message?.message.toString())
                 messageAdapter.add(msg)
 
                 val layoutManager = recyclerView.layoutManager as LinearLayoutManager
                 val lastVisiblePosition = layoutManager.findLastCompletelyVisibleItemPosition()
                 val lastItemPosition = messageAdapter.itemCount - 1
+
+                lifecycleScope.launch {
+                    val other = if (users[0] == username) users[1] else users[0]
+                    val exists = App.instance.db.getMessageDao()
+                        .messageExists(currentdate, time, username, otherUser.toString(), msg.message)
+
+                    if (exists == 0) {
+                        App.instance.db.getMessageDao().insertMessage(
+                            MessageRoom(0, currentdate, time, username, otherUser.toString(), msg.message)
+                        )
+                    }
+                }
 
                 if (lastVisiblePosition == lastItemPosition - 1 ||
                     msg.user == username) {
@@ -167,7 +184,6 @@ class FragmentMessage : Fragment() {
                         canSendMsg = true
                         setupAdapterView(view)
                         setDates()
-
                     }
                     .addOnFailureListener { e ->
                         Toast.makeText(activity, "Error on trusted users ${e.message.toString()}", Toast.LENGTH_SHORT).show()
@@ -229,6 +245,37 @@ class FragmentMessage : Fragment() {
 
         recyclerView.adapter = messageAdapter
 
+        firebaseDb.reference
+            .child("chats")
+            .child("${users.get(0)}-${users.get(1)}")
+            .child("messages")
+            .get()
+            .addOnSuccessListener { snapshot ->
+                val dates = snapshot.children.mapNotNull { it.key }
+                lifecycleScope.launch {
+                    for (date in dates.asReversed()) {
+                        val currentdate = date
+                        val msgs = App.instance.db.getMessageDao().getMessagesOfChatWithDate(
+                            currentdate, username, otherUser.toString()
+                        )
+                        if (msgs.isEmpty()) {
+                            break
+                        }
+                        if (messageAdapter.itemCount > 20) {
+                            break
+                        }
+                        for (msg in msgs) {
+                            val conv = Message(msg.date, msg.time, msg.sender, msg.message)
+                            messageAdapter.add(conv)
+                        }
+                        val lastItemPosition = messageAdapter.itemCount - 1
+                        if (lastItemPosition >= 0) {
+                            recyclerView.scrollToPosition(lastItemPosition)
+                        }
+                    }
+                }
+            }
+
         val date = ZonedDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("yyyyMMdd"))
 
         val chatRef = firebaseDb.reference
@@ -267,10 +314,22 @@ class FragmentMessage : Fragment() {
                                 val msgs: List<Message> = snapshot.children.mapNotNull { childSnapshot ->
                                     val timestamp = childSnapshot.key ?: return@mapNotNull null
                                     val fbMsg = childSnapshot.getValue(FirebaseMessage::class.java) ?: return@mapNotNull null
-                                    Message(timestamp, fbMsg.user ?: "", fbMsg.message ?: "")
+                                    Message(date, timestamp, fbMsg.user ?: "", fbMsg.message ?: "")
                                 }
                                 for (msg: Message in msgs.asReversed()) {
                                     messageAdapter.addFirst(msg)
+                                }
+                                lifecycleScope.launch {
+                                    for (msg: Message in msgs.asReversed()) {
+                                        val exists = App.instance.db.getMessageDao()
+                                            val other = if (msg.user == username) otherUser.toString() else username
+                                            if (App.instance.db.getMessageDao()
+                                                .messageExists(date, msg.time, msg.user, other, msg.message) == 0) {
+                                                App.instance.db.getMessageDao().insertMessage(
+                                                    MessageRoom(0, date, msg.time, msg.user, other, msg.message)
+                                                )
+                                            }
+                                    }
                                 }
                                 loadMsgs = true
                             }
@@ -282,9 +341,9 @@ class FragmentMessage : Fragment() {
 
         // When a new day starts, reconfigure events
 
-        val now = LocalDateTime.now()
-        val midnight = now.toLocalDate().plusDays(1).atStartOfDay()
-        val millisUntilMidnight = Duration.between(now, midnight).toMillis()
+        val nowUtc = ZonedDateTime.now(ZoneOffset.UTC)
+        val nextUtcMidnight = nowUtc.toLocalDate().plusDays(1).atStartOfDay(ZoneOffset.UTC)
+        val millisUntilMidnight = Duration.between(nowUtc, nextUtcMidnight).toMillis()
 
         Handler(Looper.getMainLooper()).postDelayed({
             onNewDayStarted()
@@ -311,7 +370,7 @@ class FragmentMessage : Fragment() {
                             val msgs = snapshot.children.mapNotNull { childSnapshot ->
                                 val timestamp = childSnapshot.key ?: return@mapNotNull null
                                 val fbMsg = childSnapshot.getValue(FirebaseMessage::class.java) ?: return@mapNotNull null
-                                Message(timestamp, fbMsg.user ?: "", fbMsg.message ?: "")}
+                                Message(keys.last(), timestamp, fbMsg.user ?: "", fbMsg.message ?: "")}
                             for (msg: Message in msgs.asReversed()) {
                                 messageAdapter.addFirst(msg)
                             }
@@ -342,9 +401,9 @@ class FragmentMessage : Fragment() {
             .child(currentdate)
             .addChildEventListener(messageListener)
 
-        val now = LocalDateTime.now()
-        val midnight = now.toLocalDate().plusDays(1).atStartOfDay()
-        val millisUntilMidnight = Duration.between(now, midnight).toMillis()
+        val nowUtc = ZonedDateTime.now(ZoneOffset.UTC)
+        val nextUtcMidnight = nowUtc.toLocalDate().plusDays(1).atStartOfDay(ZoneOffset.UTC)
+        val millisUntilMidnight = Duration.between(nowUtc, nextUtcMidnight).toMillis()
 
         Handler(Looper.getMainLooper()).postDelayed({
             onNewDayStarted()

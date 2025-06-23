@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.android.navigation.safe.args)
     id("com.google.gms.google-services")
+    id("com.google.devtools.ksp") version "2.0.21-1.0.28"
 }
 
 android {
@@ -56,4 +57,10 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     implementation(platform("com.google.firebase:firebase-bom:33.15.0"))
     implementation("com.google.firebase:firebase-analytics")
+    val room_version = "2.7.1"
+
+    implementation("androidx.room:room-runtime:$room_version")
+    // If this project uses any Kotlin source, use Kotlin Symbol Processing (KSP)
+    // See Add the KSP plugin to your project
+    ksp("androidx.room:room-compiler:$room_version")
 }

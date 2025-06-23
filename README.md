@@ -1,8 +1,10 @@
 # AtamiMessenger
 A simple messenger app
 
-![image](https://github.com/user-attachments/assets/b8068bb0-1ea2-4364-9e62-525df8d6c7aa)
-![image](https://github.com/user-attachments/assets/f60a515c-691d-4ee7-921b-30b6519d6709)
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/b8068bb0-1ea2-4364-9e62-525df8d6c7aa" width="300" />
+  <img src="https://github.com/user-attachments/assets/f60a515c-691d-4ee7-921b-30b6519d6709" width="300" />
+</p>
 
 ## Platform
 The app is primarly supported on Android.

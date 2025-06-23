@@ -83,28 +83,12 @@ class FragmentHome : Fragment() {
                                 messageAdapter.add(filtered)
                             }
                         }
-
-                        override fun onChildChanged(
-                            snapshot: DataSnapshot,
-                            previousChildName: String?
-                        ) {
-                        }
-
-                        override fun onChildRemoved(snapshot: DataSnapshot) {
-                        }
-
-                        override fun onChildMoved(
-                            snapshot: DataSnapshot,
-                            previousChildName: String?
-                        ) {
-                        }
-
-                        override fun onCancelled(error: DatabaseError) {
-                        }
-
+                        override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {}
+                        override fun onChildRemoved(snapshot: DataSnapshot) {}
+                        override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {}
+                        override fun onCancelled(error: DatabaseError) {}
                     })
             }
-
         return view
     }
 

@@ -10,10 +10,13 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.RequiresApi
+import androidx.cardview.widget.CardView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -77,8 +80,13 @@ class FragmentMessage : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_message, container, false)
 
+        // initializing components
         view.findViewById<TextView>(R.id.messagePageUsername).text = otherUser
+        view.findViewById<ImageView>(R.id.messageTopUserIcon).setBackgroundColor(
+            App.instance.colorFromUsername(otherUser.toString())
+        )
 
+        // set up go back button so we can return to home
         view.findViewById<Button>(R.id.messageBackButton).setOnClickListener {
             val action = FragmentMessageDirections.actionFragmentMessageToFragmentHome()
 
@@ -88,6 +96,7 @@ class FragmentMessage : Fragment() {
             findNavController().navigate(action)
         }
 
+        // set up same logic for the phone's back button
         val callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 val action = FragmentMessageDirections.actionFragmentMessageToFragmentHome()
@@ -101,10 +110,12 @@ class FragmentMessage : Fragment() {
 
         requireActivity().onBackPressedDispatcher.addCallback(callback)
 
+        // initialize firebase
         firebaseAuth = FirebaseAuth.getInstance()
         firebaseDb = FirebaseDatabase
             .getInstance("https://atami-f90f1-default-rtdb.europe-west1.firebasedatabase.app")
 
+        // used for listening on new messages
         messageListener = object: ChildEventListener {
             override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
                 val message = snapshot.getValue(FirebaseMessage::class.java)
@@ -117,18 +128,20 @@ class FragmentMessage : Fragment() {
                 val lastVisiblePosition = layoutManager.findLastCompletelyVisibleItemPosition()
                 val lastItemPosition = messageAdapter.itemCount - 1
 
+                // cache messages
                 lifecycleScope.launch {
-                    val other = if (users[0] == username) users[1] else users[0]
+                    val other = if (users[0] == msg.user) users[1] else users[0]
                     val exists = App.instance.db.getMessageDao()
                         .messageExists(currentdate, time, username, otherUser.toString(), msg.message)
 
                     if (exists == 0) {
                         App.instance.db.getMessageDao().insertMessage(
-                            MessageRoom(0, currentdate, time, username, otherUser.toString(), msg.message)
+                            MessageRoom(0, currentdate, time, msg.user, other, msg.message)
                         )
                     }
                 }
 
+                // scroll to newest message
                 if (lastVisiblePosition == lastItemPosition - 1 ||
                     msg.user == username) {
                     // If last visible item was previously last message,
@@ -142,6 +155,7 @@ class FragmentMessage : Fragment() {
             override fun onCancelled(error: DatabaseError) {}
         }
 
+        // chat creation-validation
         val dbRef = firebaseDb.reference
         dbRef.child("usernames").child(firebaseAuth.currentUser?.uid.toString()).get()
             .addOnSuccessListener { snapshot ->
@@ -178,6 +192,7 @@ class FragmentMessage : Fragment() {
         messageTextInput = view.findViewById(R.id.messageTextInput)
         messageSendButton = view.findViewById(R.id.messageSendButton)
 
+        // send messages to firebase
         messageSendButton.setOnClickListener {
             var msg = messageTextInput.editText?.text.toString()
             if (msg.isEmpty()) {
@@ -227,6 +242,7 @@ class FragmentMessage : Fragment() {
 
         recyclerView.adapter = messageAdapter
 
+        // load past messages and get date history
         firebaseDb.reference
             .child("chats")
             .child("${users.get(0)}-${users.get(1)}")
@@ -234,6 +250,7 @@ class FragmentMessage : Fragment() {
             .get()
             .addOnSuccessListener { snapshot ->
                 val dates = snapshot.children.mapNotNull { it.key }
+                // if cached, load messages
                 lifecycleScope.launch {
                     for (date in dates.asReversed()) {
                         val currentdate = date
@@ -241,7 +258,7 @@ class FragmentMessage : Fragment() {
                             currentdate, username, otherUser.toString()
                         )
                         if (msgs.isEmpty()) {
-                            break
+                            continue
                         }
                         if (messageAdapter.itemCount > 20) {
                             break
@@ -268,6 +285,7 @@ class FragmentMessage : Fragment() {
             .child(date)
             .addChildEventListener(messageListener)
 
+        // when scrolling up, load past messages (if it exists)
         recyclerView.setOnTouchListener { v, event ->
             when (event.action) {
                 MotionEvent.ACTION_MOVE -> {
@@ -286,6 +304,7 @@ class FragmentMessage : Fragment() {
                         }
                         val date = dates[dates.size - dateOffset]
                         var isCached = false
+                        // if cached, load locally
                         lifecycleScope.launch {
                             val msgs = App.instance.db.getMessageDao().getMessagesOfChatWithDate(
                                 date, username, otherUser.toString()
@@ -319,6 +338,7 @@ class FragmentMessage : Fragment() {
                                 for (msg: Message in msgs.asReversed()) {
                                     messageAdapter.addFirst(msg)
                                 }
+                                // cache messages if we haven't already done it
                                 lifecycleScope.launch {
                                     for (msg: Message in msgs.asReversed()) {
                                         val exists = App.instance.db.getMessageDao()
@@ -384,6 +404,7 @@ class FragmentMessage : Fragment() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun onNewDayStarted() {
+        // start listening to incoming messages
         val date = ZonedDateTime.now(ZoneOffset.UTC)
             .minusDays(1)
             .format(DateTimeFormatter.ofPattern("yyyyMMdd"))

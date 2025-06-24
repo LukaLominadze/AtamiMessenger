@@ -5,10 +5,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.atamimessenger.R
+import com.example.atamimessenger.app.App
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
@@ -38,6 +40,9 @@ class FragmentProfile : Fragment() {
         dbRef.child("usernames").child(firebaseAuth.currentUser?.uid.toString()).get()
             .addOnSuccessListener { snapshot ->
                 profUsernameTextView.text = snapshot.value.toString()
+                view.findViewById<ImageView>(R.id.profileUserIcon).setBackgroundColor(
+                    App.instance.colorFromUsername(snapshot.value.toString())
+                )
             }
 
         signOutButton.setOnClickListener {

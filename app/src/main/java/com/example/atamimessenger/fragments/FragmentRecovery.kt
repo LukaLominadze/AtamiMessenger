@@ -32,6 +32,8 @@ class FragmentRecovery : Fragment() {
         recEmailTextInput = view.findViewById(R.id.recEmailTextInput)
         recResetButton = view.findViewById(R.id.recResetButton)
 
+
+        // when pressing the back button, go back to authentication
         val callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 val action = FragmentRecoveryDirections.actionFragmentRecoveryToFragmentAuth()
@@ -40,6 +42,7 @@ class FragmentRecovery : Fragment() {
         }
         requireActivity().onBackPressedDispatcher.addCallback(callback)
 
+        // send request for resetting account
         recResetButton.setOnClickListener {
             val email = recEmailTextInput.editText?.text.toString()
             if (email.isEmpty()) {

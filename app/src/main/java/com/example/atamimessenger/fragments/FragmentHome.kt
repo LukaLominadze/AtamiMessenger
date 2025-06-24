@@ -58,6 +58,7 @@ class FragmentHome : Fragment() {
         firebaseDb = FirebaseDatabase.
             getInstance("https://atami-f90f1-default-rtdb.europe-west1.firebasedatabase.app")
 
+        // get username for account
         var username = ""
         firebaseDb.reference
             .child("usernames")
@@ -65,6 +66,7 @@ class FragmentHome : Fragment() {
             .get()
             .addOnSuccessListener { snapshot ->
                 username = snapshot.getValue(String::class.java).toString()
+                // find every chat we participate in
                 firebaseDb.reference
                     .child("chats")
                     .addChildEventListener(object: ChildEventListener {
@@ -81,6 +83,7 @@ class FragmentHome : Fragment() {
                                         else -> key
                                     }
                                 }()
+                                // get the last message of the chat
                                 var lastMsg = ""
                                 firebaseDb.reference
                                     .child("chats")

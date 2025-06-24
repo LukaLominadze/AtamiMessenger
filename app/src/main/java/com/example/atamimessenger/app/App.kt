@@ -24,6 +24,7 @@ class App: Application() {
         ).allowMainThreadQueries().build()
     }
 
+    // used for user icons
     fun colorFromUsername(username: String): Int {
         val digest = MessageDigest.getInstance("SHA-256").digest(username.toByteArray())
 

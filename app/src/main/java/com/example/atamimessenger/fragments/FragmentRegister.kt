@@ -43,6 +43,7 @@ class FragmentRegister : Fragment() {
         firebase = FirebaseDatabase
             .getInstance("https://atami-f90f1-default-rtdb.europe-west1.firebasedatabase.app")
 
+        // if pressed back button, go back to authentication
         val callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 val action = FragmentRegisterDirections.actionFragmentRegisterToFragmentAuth()
@@ -59,6 +60,7 @@ class FragmentRegister : Fragment() {
             var usernameInp = regUsernameTextInput.editText?.text.toString()
             val emailInp = regEmailTextInput.editText?.text.toString()
             val passwordInp = regPassTextInput.editText?.text.toString()
+            // check if user exists
             dbRef.child("usernames-public").child(usernameInp).get()
                 .addOnSuccessListener { dataSnapshot ->
                     if (dataSnapshot.exists()) {
@@ -73,6 +75,7 @@ class FragmentRegister : Fragment() {
                     Toast.makeText(activity, "Something went wrong", Toast.LENGTH_SHORT).show()
                     usernameInp = ""
                 }
+            // if any field is empty, throw
             if (usernameInp.isEmpty()) {
                 return@setOnClickListener
             }
@@ -85,10 +88,12 @@ class FragmentRegister : Fragment() {
                 return@setOnClickListener
             }
             else {
+                // attempt to create user
                 firebaseAuth.createUserWithEmailAndPassword(emailInp, passwordInp).addOnCompleteListener {
                     if (it.isSuccessful) {
                         Toast.makeText(activity, "Added successfully", Toast.LENGTH_SHORT).show()
                         val userId = FirebaseAuth.getInstance().currentUser?.uid
+                        // register username in database
                         dbRef.child("usernames-public").child(usernameInp.lowercase()).setValue(usernameInp)
                             .addOnSuccessListener {
                                 Toast.makeText(activity, "Added to public", Toast.LENGTH_SHORT).show()

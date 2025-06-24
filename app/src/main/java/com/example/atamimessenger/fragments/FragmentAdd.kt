@@ -63,6 +63,7 @@ class FragmentAdd : Fragment() {
             }
             else {
                 val dbRef = firebaseDb.reference
+                // search for users in the database
                 dbRef.child("usernames-public").get()
                     .addOnSuccessListener { snapshot ->
                         val users = mutableListOf<SearchCard>()

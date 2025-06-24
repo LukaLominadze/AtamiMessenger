@@ -56,6 +56,7 @@ class FragmentAuth : Fragment() {
             findNavController().navigate(action)
         }
 
+        // if already logged in, go to home screen
         val user = firebaseAuth.currentUser
         if (user != null) {
             val action = FragmentAuthDirections.actionFragmentAuthToFragmentHome()
@@ -64,7 +65,8 @@ class FragmentAuth : Fragment() {
 
         authLoginButton.setOnClickListener {
             val email = authEmailTextInput.editText?.text.toString()
-            val password = authPassTextInput.editText?.text.toString()
+            val password = authPassTextInput.editText?.text.toString()\
+            // email and password validation
             if (email.isEmpty() || password.isEmpty()) {
                 Toast.makeText(activity, "Email and password can't be empty!", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
@@ -73,6 +75,7 @@ class FragmentAuth : Fragment() {
                 Toast.makeText(activity, "Invalid email!", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
+            // if logged in, go to home screen
             firebaseAuth.signInWithEmailAndPassword(email, password)
                 .addOnSuccessListener {
                     val action = FragmentAuthDirections.actionFragmentAuthToFragmentHome()

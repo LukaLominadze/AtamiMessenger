@@ -65,7 +65,7 @@ class FragmentAuth : Fragment() {
 
         authLoginButton.setOnClickListener {
             val email = authEmailTextInput.editText?.text.toString()
-            val password = authPassTextInput.editText?.text.toString()\
+            val password = authPassTextInput.editText?.text.toString()
             // email and password validation
             if (email.isEmpty() || password.isEmpty()) {
                 Toast.makeText(activity, "Email and password can't be empty!", Toast.LENGTH_SHORT).show()

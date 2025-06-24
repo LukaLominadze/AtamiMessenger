@@ -23,13 +23,16 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
+        // initialize firebase
         FirebaseApp.initializeApp(this)
         val user = FirebaseAuth.getInstance().currentUser
 
+        // navigation initialization
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigation)
         val navController = findNavController(R.id.nav_host_fragment)
         bottomNavigationView.setupWithNavController(navController)
 
+        // if user logged in, hide navigation
         if (user == null) {
             bottomNavigationView.visibility = View.GONE
         }

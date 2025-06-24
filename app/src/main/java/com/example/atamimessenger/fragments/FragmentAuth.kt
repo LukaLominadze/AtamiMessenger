@@ -40,6 +40,7 @@ class FragmentAuth : Fragment() {
         authRegisterButton = view.findViewById(R.id.authRegisterButton)
         authResetButton = view.findViewById(R.id.authResetButton)
 
+        // if pressed back button, quit app
         val callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 requireActivity().finishAffinity()
@@ -78,6 +79,7 @@ class FragmentAuth : Fragment() {
             }
             // if logged in, go to home screen
             firebaseAuth.signInWithEmailAndPassword(email, password)
+                // if logged in, go to home and show navigation
                 .addOnSuccessListener {
                     val action = FragmentAuthDirections.actionFragmentAuthToFragmentHome()
 
@@ -86,6 +88,7 @@ class FragmentAuth : Fragment() {
 
                     findNavController().navigate(action)
                 }
+                // error
                 .addOnFailureListener {
                     App.instance.showCustomToast(activity, "Invalid email or password", Toast.LENGTH_SHORT)
                 }

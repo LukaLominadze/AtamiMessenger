@@ -54,6 +54,7 @@ class App: Application() {
         val g = digest[1].toInt() and 0xFF
         val b = digest[2].toInt() and 0xFF
 
+        // gatetreba
         val s = 0.18f
 
         val newR = (r + ((255 - r) * s)).toInt()

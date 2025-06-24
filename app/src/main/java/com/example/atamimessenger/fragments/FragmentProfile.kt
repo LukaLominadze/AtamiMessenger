@@ -36,6 +36,7 @@ class FragmentProfile : Fragment() {
         signOutButton = view.findViewById(R.id.signOutButton)
         profUsernameTextView = view.findViewById(R.id.profUsernameTextView)
 
+        // set username
         val dbRef = firebaseDb.reference
         dbRef.child("usernames").child(firebaseAuth.currentUser?.uid.toString()).get()
             .addOnSuccessListener { snapshot ->

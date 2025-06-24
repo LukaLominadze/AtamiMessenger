@@ -11,6 +11,7 @@ data class Message(
     var message: String
 )
 
+// for loading messages from firebase
 class FirebaseMessage() {
     val user: String? = null
     val message: String? = null

@@ -167,6 +167,7 @@ class FragmentMessage : Fragment() {
 
                 val mySlot = if (username == users[0]) "0" else "1"
 
+                // insert users in trusted block
                 val chatRef = dbRef
                     .child("chats")
                     .child("${users.get(0)}-${users.get(1)}")

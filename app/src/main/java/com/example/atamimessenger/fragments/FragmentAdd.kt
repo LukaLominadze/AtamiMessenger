@@ -46,6 +46,7 @@ class FragmentAdd : Fragment() {
             val bottomNav = requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigation)
             bottomNav.visibility = View.GONE
 
+            // clear bottom navigation cache
             val navOptions = NavOptions.Builder()
                 .setPopUpTo(R.id.fragmentAdd, true)
                 .build()

@@ -10,6 +10,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.atamimessenger.R
+import com.example.atamimessenger.app.App
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.auth.FirebaseAuth
@@ -64,15 +65,15 @@ class FragmentRegister : Fragment() {
             dbRef.child("usernames-public").child(usernameInp).get()
                 .addOnSuccessListener { dataSnapshot ->
                     if (dataSnapshot.exists()) {
-                        Toast.makeText(activity, "User exists", Toast.LENGTH_SHORT).show()
+                        App.instance.showCustomToast(activity, "User exists", Toast.LENGTH_SHORT)
                         usernameInp = ""
                     }
                     else {
-                        Toast.makeText(activity, "User available", Toast.LENGTH_SHORT).show()
+                        App.instance.showCustomToast(activity, "User available", Toast.LENGTH_SHORT)
                     }
                 }
                 .addOnFailureListener {
-                    Toast.makeText(activity, "Something went wrong", Toast.LENGTH_SHORT).show()
+                    App.instance.showCustomToast(activity, "Something went wrong", Toast.LENGTH_SHORT)
                     usernameInp = ""
                 }
             // if any field is empty, throw
@@ -80,41 +81,41 @@ class FragmentRegister : Fragment() {
                 return@setOnClickListener
             }
             if (emailInp.isEmpty() || passwordInp.isEmpty()) {
-                Toast.makeText(activity, "Email and password can't be empty!", Toast.LENGTH_SHORT).show()
+                App.instance.showCustomToast(activity, "Email and password can't be empty!", Toast.LENGTH_SHORT)
                 return@setOnClickListener
             }
             else if (!emailInp.contains("@") || !emailInp.contains(".")) {
-                Toast.makeText(activity, "Invalid email!", Toast.LENGTH_SHORT).show()
+                App.instance.showCustomToast(activity, "Invalid email!", Toast.LENGTH_SHORT)
                 return@setOnClickListener
             }
             else {
                 // attempt to create user
                 firebaseAuth.createUserWithEmailAndPassword(emailInp, passwordInp).addOnCompleteListener {
                     if (it.isSuccessful) {
-                        Toast.makeText(activity, "Added successfully", Toast.LENGTH_SHORT).show()
+                        App.instance.showCustomToast(activity, "Added successfully", Toast.LENGTH_SHORT)
                         val userId = FirebaseAuth.getInstance().currentUser?.uid
                         // register username in database
                         dbRef.child("usernames-public").child(usernameInp.lowercase()).setValue(usernameInp)
                             .addOnSuccessListener {
-                                Toast.makeText(activity, "Added to public", Toast.LENGTH_SHORT).show()
+                                App.instance.showCustomToast(activity, "Added to public", Toast.LENGTH_SHORT)
                             }
                             .addOnFailureListener {
-                                Toast.makeText(activity, "Failed to add to public", Toast.LENGTH_SHORT).show()
+                                App.instance.showCustomToast(activity, "Failed to add to public", Toast.LENGTH_SHORT)
                             }
                         dbRef.child("usernames").child(userId.toString()).setValue(usernameInp)
                             .addOnSuccessListener {
-                                Toast.makeText(activity, "Added to private", Toast.LENGTH_SHORT).show()
+                                App.instance.showCustomToast(activity, "Added to private", Toast.LENGTH_SHORT)
                                 firebaseAuth.signOut()
                                 val action = FragmentRegisterDirections.actionFragmentRegisterToFragmentAuth()
                                 findNavController().navigate(action)
                             }
                             .addOnFailureListener {
-                                Toast.makeText(activity, "Failed to add to private", Toast.LENGTH_SHORT).show()
+                                App.instance.showCustomToast(activity, "Failed to add to private", Toast.LENGTH_SHORT)
                             }
 
                     }
                     else {
-                        Toast.makeText(activity, "Failed to register", Toast.LENGTH_SHORT).show()
+                        App.instance.showCustomToast(activity, "Failed to register", Toast.LENGTH_SHORT)
                     }
                 }
             }

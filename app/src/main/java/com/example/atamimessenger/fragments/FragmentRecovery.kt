@@ -10,6 +10,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.atamimessenger.R
+import com.example.atamimessenger.app.App
 import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.auth.FirebaseAuth
 
@@ -46,17 +47,17 @@ class FragmentRecovery : Fragment() {
         recResetButton.setOnClickListener {
             val email = recEmailTextInput.editText?.text.toString()
             if (email.isEmpty()) {
-                Toast.makeText(activity, "Email can't be empty", Toast.LENGTH_SHORT).show()
+                App.instance.showCustomToast(activity, "Email can't be empty", Toast.LENGTH_SHORT)
                 return@setOnClickListener
             }
             firebaseAuth.sendPasswordResetEmail(email)
                 .addOnSuccessListener {
-                    Toast.makeText(activity, "Sent recovery link to email", Toast.LENGTH_SHORT).show()
+                    App.instance.showCustomToast(activity, "Sent recovery link to email", Toast.LENGTH_SHORT)
                     val action = FragmentRecoveryDirections.actionFragmentRecoveryToFragmentAuth()
                     findNavController().navigate(action)
                 }
                 .addOnFailureListener {
-                    Toast.makeText(activity, "Email is invalid", Toast.LENGTH_SHORT).show()
+                    App.instance.showCustomToast(activity, "Email is invalid", Toast.LENGTH_SHORT)
                 }
         }
 

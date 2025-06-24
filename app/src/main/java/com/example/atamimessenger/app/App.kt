@@ -1,8 +1,13 @@
 package com.example.atamimessenger.app
 
 import android.app.Application
+import android.content.Context
 import android.graphics.Color
+import android.view.LayoutInflater
+import android.widget.TextView
+import android.widget.Toast
 import androidx.room.Room
+import com.example.atamimessenger.R
 import com.example.atamimessenger.database.MessageDatabase
 import java.security.MessageDigest
 
@@ -23,6 +28,22 @@ class App: Application() {
             "MESSAGE_DB"
         ).allowMainThreadQueries().build()
     }
+
+    fun showCustomToast(context: Context?, message: String, duration: Int = Toast.LENGTH_SHORT) {
+        if (context == null) return
+
+        val inflater = LayoutInflater.from(context)
+        val layout = inflater.inflate(R.layout.atami_toast, null)
+
+        val textView = layout.findViewById<TextView>(R.id.toast_text)
+        textView.text = message
+
+        val toast = Toast(context)
+        toast.duration = duration
+        toast.view = layout
+        toast.show()
+    }
+
 
     // used for user icons
     fun colorFromUsername(username: String): Int {

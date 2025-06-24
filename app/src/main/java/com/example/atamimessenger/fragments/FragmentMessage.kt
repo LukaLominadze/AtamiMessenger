@@ -182,11 +182,11 @@ class FragmentMessage : Fragment() {
                         setDates()
                     }
                     .addOnFailureListener { e ->
-                        Toast.makeText(activity, "Error on trusted users ${e.message.toString()}", Toast.LENGTH_SHORT).show()
+                        App.instance.showCustomToast(activity, "Error on trusted users ${e.message.toString()}", Toast.LENGTH_SHORT)
                     }
             }
             .addOnFailureListener { e ->
-                Toast.makeText(activity, "Couldn't find username ${e.message.toString()}", Toast.LENGTH_SHORT).show()
+                App.instance.showCustomToast(activity, "Couldn't find username ${e.message.toString()}", Toast.LENGTH_SHORT)
             }
 
         messageTextInput = view.findViewById(R.id.messageTextInput)
@@ -224,7 +224,7 @@ class FragmentMessage : Fragment() {
 
                 }
                 .addOnFailureListener { e ->
-                    Toast.makeText(activity, "Something went wrong ${e.message.toString()}", Toast.LENGTH_SHORT).show()
+                    App.instance.showCustomToast(activity, "Something went wrong ${e.message.toString()}", Toast.LENGTH_SHORT)
                 }
         }
 

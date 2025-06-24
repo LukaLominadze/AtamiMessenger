@@ -10,6 +10,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.atamimessenger.R
+import com.example.atamimessenger.app.App
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.auth.FirebaseAuth
@@ -68,11 +69,11 @@ class FragmentAuth : Fragment() {
             val password = authPassTextInput.editText?.text.toString()
             // email and password validation
             if (email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(activity, "Email and password can't be empty!", Toast.LENGTH_SHORT).show()
+                App.instance.showCustomToast(activity, "Email and password can't be empty!", Toast.LENGTH_SHORT)
                 return@setOnClickListener
             }
             else if (!email.contains("@") || !email.contains(".")) {
-                Toast.makeText(activity, "Invalid email!", Toast.LENGTH_SHORT).show()
+                App.instance.showCustomToast(activity, "Inavlid email!", Toast.LENGTH_SHORT)
                 return@setOnClickListener
             }
             // if logged in, go to home screen
@@ -86,7 +87,7 @@ class FragmentAuth : Fragment() {
                     findNavController().navigate(action)
                 }
                 .addOnFailureListener {
-                    Toast.makeText(activity, "Invalid email or password", Toast.LENGTH_SHORT).show()
+                    App.instance.showCustomToast(activity, "Invalid email or password", Toast.LENGTH_SHORT)
                 }
         }
 

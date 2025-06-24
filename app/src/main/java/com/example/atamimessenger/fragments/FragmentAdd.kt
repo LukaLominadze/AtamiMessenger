@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.atamimessenger.R
 import com.example.atamimessenger.adapters.SearchRecyclerViewAdapter
+import com.example.atamimessenger.app.App
 import com.example.atamimessenger.database.SearchCard
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.textfield.TextInputEditText
@@ -76,7 +77,7 @@ class FragmentAdd : Fragment() {
                         searchAdapter.updateItems(users)
                     }
                     .addOnFailureListener { e ->
-                        Toast.makeText(activity, "Couldn't get values ${e.message}", Toast.LENGTH_LONG).show()
+                        App.instance.showCustomToast(activity, "Couldn't get values ${e.message}", Toast.LENGTH_LONG)
                     }
             }
         }

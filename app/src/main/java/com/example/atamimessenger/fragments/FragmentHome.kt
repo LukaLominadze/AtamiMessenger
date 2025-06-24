@@ -112,7 +112,7 @@ class FragmentHome : Fragment() {
                                             }
                                     }
                                     .addOnFailureListener { e ->
-                                        Toast.makeText(activity, "${e.message.toString()}", Toast.LENGTH_SHORT).show()
+                                        App.instance.showCustomToast(activity, "${e.message.toString()}", Toast.LENGTH_SHORT)
                                     }
                             }
                         }
